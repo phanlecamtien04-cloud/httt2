@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Hệ thống tìm tin tour du lịch</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f8;padding:20px}
+h1{text-align:center}
+.search{background:#fff;padding:15px;border-radius:10px;margin-bottom:20px}
+input,select{padding:8px;margin:5px}
+button{padding:8px 12px;background:#c40000;color:#fff;border:none;border-radius:5px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.card{background:#fff;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.1)}
+.card img{width:100%;height:150px;object-fit:cover;border-radius:12px 12px 0 0}
+.info{padding:10px;font-size:14px}
+.code{background:#eee;padding:3px 6px;border-radius:5px;font-size:12px}
+.price{color:red;font-weight:bold}
+
+.hidden{display:none}
+.popup{position:fixed;top:20%;left:35%;width:30%;background:#fff;padding:20px;
+border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,.4)}
+table{background:#fff;width:100%;border-collapse:collapse}
+th,td{border:1px solid #ccc;padding:6px;text-align:left}
+/* ===== HEADER ===== */
+/* ===== TOP BANNER ===== */
+.top-banner img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:15px;
+  margin-bottom:20px;
+}
+/* ===== HEADER ===== */
+.site-header{
+  position:relative;
+  display:flex;
+  align-items:center;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  padding:18px 25px;
+  border-radius:15px;
+  margin-bottom:25px;
+  box-shadow:0 5px 12px rgba(0,0,0,.25);
+  color:#fff;
+}
+
+/* LOGO BÊN TRÁI */
+.site-header .logo{
+  width:65px;
+  background:#fff;
+  padding:6px;
+  border-radius:50%;
+}
+
+/* CHỮ Ở GIỮA */
+.site-header .title{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+}
+
+.site-header .title h1{
+  margin:0;
+  font-size:24px;
+  font-weight:bold;
+}
+
+.site-header .title p{
+  margin:3px 0 0;
+  font-size:13px;
+  opacity:.9;
+}
+
+
+/* ===== FOOTER ===== */
+.site-footer{
+  margin-top:40px;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:#fff;
+  padding:25px 20px;
+  border-radius:15px;
+  text-align:center;
+  box-shadow:0 -4px 10px rgba(0,0,0,.25);
+}
+
+.site-footer img{
+  width:65px;
+  background:#fff;
+  padding:6px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+.site-footer p{
+  margin:4px 0;
+  font-size:13px;
+  opacity:.9;
+}
+
+
+</style>
+</head>
+
+
+
+<body>
+
+<!-- BANNER TRÊN CÙNG -->
+<div class="top-banner">
+  <img src="https://cdn-vietrace365.vn/uploads/f_5ce61e1be601fa1e66398287/32cbee5a844e2f3420b65720f.png">
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <img src="https://totgroup.vn/images/2022/08/19/a7b14f9cda18fcd6437b059000b3ba36.png" class="logo">
+
+  <div class="title">
+    <h1>(DEMO) HỆ THỐNG TÌM TIN SAIGONTOURIST</h1>
+    <p>Hệ thống hỗ trợ tìm kiếm & quản lý tour du lịch</p>
+  </div>
+</header>
+
+
+
+<!-- SEARCH -->
+<div class="search">
+<input id="kw1" placeholder="Thuật ngữ 1">
+<select id="op">
+<option>AND</option>
+<option>OR</option>
+<option>NOT</option>
+</select>
+<input id="kw2" placeholder="Thuật ngữ 2"><br>
+Từ <input type="date" id="from">
+đến <input type="date" id="to">
+<input type="number" id="maxPrice" placeholder="Giá tối đa">
+<button onclick="search()">Tìm</button>
+</div>
+<!-- ACCESS POINTS -->
+<div class="search">
+ <b>Điểm truy cập:</b><br>
+
+ <select onchange="filterByAccess(this.value)">
+  <option value="">-- Trong nước --</option>
+  <option value="nha trang">Nha Trang</option>
+  <option value="buôn ma thuột">Buôn Ma Thuột</option>
+  <option value="hà giang">Hà Giang</option>
+  <option value="lạng sơn">Lạng Sơn</option>
+  <option value="yên tử">Yên Tử</option>
+  <option value="hạ long">Hạ Long</option>
+  <option value="ninh bình">Ninh Bình</option>
+  <option value="hà nội">Hà Nội</option>
+ </select>
+
+ <select onchange="filterByAccess(this.value)">
+  <option value="">-- Nước ngoài --</option>
+  <optgroup label="Châu Âu">
+   <option value="đức">Đức</option>
+   <option value="ý">Ý</option>
+   <option value="thụy sỹ">Thụy Sỹ</option>
+   <option value="pháp">Pháp</option>
+  </optgroup>
+  <optgroup label="Châu Á">
+   <option value="thái lan">Thái Lan</option>
+   <option value="nhật bản">Nhật Bản</option>
+   <option value="hàn quốc">Hàn Quốc</option>
+   <option value="đài loan">Đài Loan</option>
+  </optgroup>
+ </select>
+
+ <button onclick="render(TOURS)">Xem tất cả</button>
+</div>
+
+
+<div id="result" class="grid"></div>
+
+<!-- LOGIN -->
+<div id="loginBox">
+<h2>Đăng nhập nhân viên</h2>
+<input id="user" placeholder="Tên đăng nhập"><br><br>
+<input id="pass" type="password" placeholder="Mật khẩu"><br><br>
+<button onclick="login()">Đăng nhập</button>
+<p id="loginMsg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+<h2>Dashboard</h2>
+<button onclick="showCustomers()">Thông tin khách hàng</button>
+<button onclick="showTours()">Thông tin tour</button>
+<button onclick="logout()">Đăng xuất</button>
+<div id="content"></div>
+</div>
+
+<div id="popup" class="popup hidden"></div>
+
+<script>
+// =======================
+// DATA TOUR – GIỮ NGUYÊN
+// =======================
+const TOURS = [
+{
+ "Mã biểu ghi":"TN58030126",
+ "Tên":"NHA TRANG XƯA – LÀNG YẾN MAI SINH – DỐC LẾT - I RESORT",
+ "Ngày khởi hành":"2026-01-03",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường bộ",
+ "Thời gian":"4 ngày 3 đêm",
+ "Hãng hàng không":"EVA Air",
+ "Giá tour":3990000,
+ "link":"https://saigontourist.net/tour/nha-trang-xua-lang-yen-mai-sinh-doc-let-i-resort--3025",
+ "Từ khóa":["nha trang","nha trang xưa","làng yến mai sinh","dốc lết","i resort","dưới 4 triệu","tháng 1","4 ngày 3 đêm"],
+ "img":"https://du-lich-da-lat.com/wp-content/uploads/2022/03/Nha-Trang.jpg"
+},
+{
+
+"Mã biểu ghi":"TN50070126",
+ "Tên":"BUÔN MA THUỘT - BUÔN ĐÔN - PLEIKU - KONTUM MĂNG ĐEN - DAKKE RESORT",
+ "Ngày khởi hành":"2026-01-07",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường bộ",
+ "Thời gian":"5 ngày 4 đêm",
+ "Hãng hàng không":"EVA Air",
+ "Giá tour":5979000,
+"link":"https://saigontourist.net/tour/buon-ma-thuot-buon-don-pleiku-kontum-mang-den-dakke-resort-2993",
+ "Từ khóa":["BUÔN MA THUỘT","BUÔN ĐÔN","PLEIKU","KONTUM MĂNG ĐEN","DAKKE RESORT","dưới 6 triệu","tháng 1","5 ngày 4 đêm"],
+"img":"https://bcp.cdnchinhphu.vn/334894974524682240/2024/9/14/bmt-1726313899109744295987.jpg"
+},
+{
+
+"Mã biểu ghi":"TN25140126",
+ "Tên":"HÀ GIANG - ĐỒNG VĂN - SÔNG NHO QUẾ - CAO BẰNG - BẢN GIỐC - LẠNG SƠN",
+ "Ngày khởi hành":"2026-01-14",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"5 ngày 4 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":11179000,
+"link":"https://saigontourist.net/tour/ha-giang-dong-van-song-nho-que-cao-bang-ban-gioc-lang-son-2248",
+ "Từ khóa":["HÀ GIANG","ĐỒNG VĂN","SÔNG NHO QUẾ","CAO BẰNG","BẢN GIỐC","LẠNG SƠN","dưới 12 triệu","tháng 1","5 ngày 4 đêm"],
+"img":"https://images.vietnamtourism.gov.vn/vn//images/2021/thang_8/1108.xay_dung_thuong_hieu_du_lich_lang_son_an_tuong.jpg"
+
+},
+{
+
+"Mã biểu ghi":"TN28230126",
+ "Tên":"HÀ GIANG - ĐỒNG VĂN - SÔNG NHO QUẾ - PÁC BÓ - BẢN GIỐC - BA BỂ",
+ "Ngày khởi hành":"2026-01-23",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"6 ngày 5 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":12479000,
+"link":"https://saigontourist.net/tour/ha-giang-dong-van-song-nho-que-pac-bo-ban-gioc-ba-be--2247",
+ "Từ khóa":["HÀ GIANG","ĐỒNG VĂN","SÔNG NHO QUẾ","PÁC BÓ","BẢN GIỐC","BA BỂ","dưới 15 triệu","tháng 1","6 ngày 5 đêm"],
+"img":"https://www.vietnambooking.com/wp-content/uploads/2023/10/du-lich-ho-ba-be-1.jpg"
+
+},
+{
+
+"Mã biểu ghi":"TN04230126",
+ "Tên":"TẾT BÍNH NGỌ 2026: YÊN TỬ – HẠ LONG – NINH BÌNH – HÀ NỘI",
+ "Ngày khởi hành":"2026-02-18",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"4 ngày 3 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":13979000,
+"link":"https://saigontourist.net/tour/tet-binh-ngo-2026-yen-tu-ha-long-ninh-binh-ha-noi-3406",
+ "Từ khóa":["TẾT BÍNH NGỌ","2026","YÊN TỬ","HẠ LONG","NINH BÌNH","HÀ NỘI","dưới 14 triệu","tháng 2","4 ngày 3 đêm"],
+"img":"https://cdn.xanhsm.com/2025/02/c0c9124a-vinh-ha-long-1.jpg"
+},
+{
+"Mã biểu ghi":"NN82100326",
+ "Tên":"NHẬT BẢN - Thưởng Ngoạn Anh Đào Kawazu (Osaka - Kobe - Kyoto - Núi Phú Sỹ - Trải Nghiệm Trượt Tuyết - Tokyo)",
+ "Ngày khởi hành":"2026-03-10",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"6 ngày 5 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":44999000,
+"link":"https://saigontourist.net/tour/nhat-ban-thuong-ngoan-anh-dao-kawazu-osaka-kobe-kyoto-nui-phu-sy-trai-nghiem-truot-tuyet-tokyo--3470",
+ "Từ khóa":["nhật bản","tháng 3","hoa anh đào","dưới 45 triệu","Kawazu","Osaka","Kobe","Kyoto","Núi Phú Sỹ","Trượt Tuyết","Tokyo","mùa xuân","6 ngày 5 đêm"],
+"img":"https://saigontourist.net/media/private/Cx9KNv/iAHsIp/10de4b4a.jpg"
+
+},
+{
+"Mã biểu ghi":"NN49180226",
+ "Tên":"CHÂU ÂU (Đức – Ý – Thụy Sỹ - Pháp - Chinh phục đỉnh Titlis)",
+ "Ngày khởi hành":"2026-02-18",
+ "Xuất phát":"Đà Nẵng",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"10 ngày 9 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":81990000,
+"link":"https://saigontourist.net/tour/chau-au-duc-y-thuy-sy-phap-chinh-phuc-dinh-titlis--3350",
+ "Từ khóa":["CHÂU ÂU","tháng 2","Đức","dưới 85 triệu","Ý","Thụy Sỹ","Pháp","đỉnh Titlis","leo núi","mùa xuân","10 ngày 9 đêm"],
+"img":"https://saigontourist.net/media/private/sRUrlr/6JhGxY/QNwhtl/03c215d0.jpg"
+},
+{
+ "Mã biểu ghi":"NN82170225",
+ "Tên":"HÀN QUỐC (Seoul - Jeju - Đỉnh Seongsan Ilchulbong – Ecoland - Cố Cung Gyeongbokgung - Nanta Show - Chùa Jogyesa - Thư Viện Starfield - Trick Eyes Museum - Tháp Namsan - Trải Nghiệm Trượt Tuyết)",
+ "Ngày khởi hành":"2026-02-17",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"6 ngày 5 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":40999000,
+ "link":"https://saigontourist.net/tour/han-quoc-seoul-jeju-dinh-seongsan-ilchulbong-ecoland-co-cung-gyeongbokgung-nanta-show-chua-jogyesa-thu-vien-starfield-trick-eyes-museum-thap-namsan-trai-nghiem-truot-tuyet--3495",
+ "Từ khóa":["hàn quốc","Seoul","Jeju","Đỉnh Seongsan Ilchulbong","Ecoland","Cố Cung Gyeongbokgung","Nanta Show","Chùa Jogyesa","Thư Viện Starfield","Trick Eyes Museum","Tháp Namsan","Trượt Tuyết","tháng 1","mùa xuân","dưới 50 triệu","6 ngày 5 đêm"],
+ "img":"https://nncn.edu.vn/wp-content/uploads/2021/06/article.jpg"
+
+},
+{
+ "Mã biểu ghi":"NN88310125",
+ "Tên":"ĐÀI LOAN (Đài Bắc - Đài Trung - Cao Hùng - Đài Nam - Đài Bắc)",
+ "Ngày khởi hành":"2025-01-31",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"5 ngày 4 đêm",
+ "Hãng hàng không":"EVA Air",
+ "Giá tour":18999000,
+ "link":"https://saigontourist.net/tour/dai-loan-dai-bac-dai-trung-cao-hung-dai-nam-dai-bac--3654",
+ "Từ khóa":["đài loan","đài bắc","đài trung","cao hùng","đài nam","dưới 20 triệu", "tháng 1","5 ngày 4 đêm"],
+ "img":"https://www.happyvisa.vn/wp-content/uploads/2023/05/dai-loan.jpg"
+
+},
+{
+ "Mã biểu ghi":"NN66311225",
+ "Tên":"THÁI LAN (BANGKOK - PATTAYA - CORAL -SAFARI",
+ "Ngày khởi hành":"2025-12-31",
+ "Xuất phát":"TP. Hồ Chí Minh",
+ "Phương tiện di chuyển":"Đường Hàng Không",
+ "Thời gian":"5 ngày 4 đêm",
+ "Hãng hàng không":"Vietnam Airlines",
+ "Giá tour":13999000,
+ "link":"https://saigontourist.net/tour/thai-lan-bangkok-pattaya-coral-safari--2894",
+ "Từ khóa":["thái lan","BANGKOK","PATTAYA","CORAL","SAFARI","nước ngoài","dưới 20 triệu","dưới 15 triệu", "tháng 12","5 ngày 4 đêm"],
+ "img":"https://ik.imagekit.io/tvlk/blog/2021/10/du-lich-pattaya-1.jpeg?tr=q-70,c-at_max,w-500,h-250,dpr-2"
+
+}
+];
+
+// (do dài, bạn đã có sẵn đúng mảng TOURS này trong file trước – giữ nguyên)
+
+// =======================
+// RENDER
+// =======================
+function render(list){
+ let html="";
+ list.forEach(t=>{
+  html+=`
+  <div class="card">
+   <img src="${t.img}">
+   <div class="info">
+    <div class="code">${t["Mã biểu ghi"]}</div>
+    <b>${t["Tên"]}</b><br>
+    Xuất phát: ${t["Xuất phát"]}<br>
+    Phương tiện: ${t["Phương tiện di chuyển"]}<br>
+    Thời gian: ${t["Thời gian"]}<br>
+    Khởi hành: ${t["Ngày khởi hành"]}<br>
+    <span class="price">${t["Giá tour"].toLocaleString()} VNĐ</span><br>
+    <a href="${t.link}" target="_blank">👉 Xem chi tiết</a>
+   </div>
+  </div>`;
+ });
+ result.innerHTML=html;
+}
+
+// =======================
+// SEARCH
+// =======================
+function search(){
+ let k1=kw1.value.toLowerCase().trim();
+ let k2=kw2.value.toLowerCase().trim();
+ let op=document.getElementById("op").value;
+ let f=from.value,t=to.value,max=maxPrice.value;
+
+ let rs=TOURS.filter(x=>{
+  let text=(x["Tên"]+" "+x["Từ khóa"].join(" ")).toLowerCase();
+  let m1=k1? k1.split(" ").every(w=>text.includes(w)):true;
+  let m2=k2? k2.split(" ").every(w=>text.includes(w)):true;
+  let ok=true;
+  if(k1&&k2){
+    if(op=="AND") ok=m1&&m2;
+    if(op=="OR") ok=m1||m2;
+    if(op=="NOT") ok=m1&&!m2;
+  }else ok=m1;
+  if(f && x["Ngày khởi hành"]<f) ok=false;
+  if(t && x["Ngày khởi hành"]>t) ok=false;
+  if(max && x["Giá tour"]>max) ok=false;
+  return ok;
+ });
+ render(rs);
+}
+render(TOURS);
+
+// =======================
+// LOGIN
+// =======================
+const accounts={
+ Tienphan:"12345@",
+ Phuonghuynh:"12345@",
+ Thuylinh:"12345@",
+ Ngoclinh:"12345@",
+ Hoangngan:"12345@"
+};
+
+const customers=[
+ {ten:"Nguyễn Văn A",phone:"0901111111",email:"a@gmail.com",tour:"Phú Quốc"},
+ {ten:"Trần Thị B",phone:"0902222222",email:"b@gmail.com",tour:"Đà Nẵng"},
+ {ten:"Lê Văn C",phone:"0903333333",email:"c@gmail.com",tour:"Hàn Quốc"},
+ {ten:"Phạm Thị D",phone:"0904444444",email:"d@gmail.com",tour:"Phú Quốc"},
+ {ten:"Hoàng Văn E",phone:"0905555555",email:"e@gmail.com",tour:"Đà Nẵng"},
+ {ten:"Đỗ Thị F",phone:"0906666666",email:"f@gmail.com",tour:"Phú Quốc"},
+ {ten:"Vũ Văn G",phone:"0907777777",email:"g@gmail.com",tour:"Hàn Quốc"},
+ {ten:"Bùi Thị H",phone:"0908888888",email:"h@gmail.com",tour:"Đà Nẵng"},
+ {ten:"Ngô Văn I",phone:"0909999999",email:"i@gmail.com",tour:"Phú Quốc"},
+ {ten:"Mai Thị K",phone:"0910000000",email:"k@gmail.com",tour:"Hàn Quốc"}
+];
+
+function login(){
+ if(accounts[user.value]===pass.value){
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+ }else loginMsg.innerText="Sai tài khoản hoặc mật khẩu";
+}
+function logout(){location.reload();}
+
+function showCustomers(){
+ let html="<h3>Danh sách khách hàng</h3><table><tr><th>Họ tên</th><th>Điện thoại</th><th>Email</th><th>Tour</th></tr>";
+ customers.forEach(c=>{
+  html+=`<tr><td>${c.ten}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.tour}</td></tr>`;
+ });
+ html+="</table>";
+ content.innerHTML=html;
+}
+
+function showTours(){
+ let html="<h3>Danh sách tour</h3><ul>";
+ TOURS.forEach((t,i)=>{
+  html+=`<li><a href="#" onclick="detail(${i})">${t["Tên"]}</a></li>`;
+ });
+ html+="</ul>";
+ content.innerHTML=html;
+}
+
+function detail(i){
+ let t=TOURS[i];
+ popup.innerHTML=`
+ <h3>${t["Tên"]}</h3>
+ <p>Người phụ trách: Nhân viên ${i+1}</p>
+ <p>Ngày khởi hành: ${t["Ngày khởi hành"]}</p>
+ <p>Trạng thái: ${t["Ngày khởi hành"]<"2025-01-01"?"Đã hoàn thành":"Sắp diễn ra"}</p>
+ <p>Số lượng khách: ${20+i*3}</p>
+ <button onclick="popup.classList.add('hidden')">Đóng</button>`;
+ popup.classList.remove("hidden");
+}
+
+// =======================
+// ACCESS POINT FILTER
+// =======================
+function filterByAccess(keyword){
+ if(!keyword){
+  render(TOURS);
+  return;
+ }
+ keyword = keyword.toLowerCase();
+
+ let rs = TOURS.filter(t=>{
+  let text = (t["Tên"] + " " + t["Từ khóa"].join(" ")).toLowerCase();
+  return text.includes(keyword);
+ });
+
+ render(rs);
+}
+
+
+</script>
+
+</body>
+
+<footer class="site-footer">
+  <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png">
+  <div>
+    <p>© 2025 – (Demo) Hệ thống tìm tin Saigontourist</p>
+    <p>SV thực hiện: Tiên Phan</p>
+  </div>
+</footer>
+
+</html>
